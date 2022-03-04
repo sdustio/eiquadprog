@@ -17,55 +17,93 @@
 # along with eiquadprog.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+cmake_minimum_required(VERSION 3.1)
 
-# Project properties
-SET(PROJECT_ORG stack-of-tasks)
-SET(PROJECT_NAME eiquadprog)
-SET(PROJECT_DESCRIPTION "C++ reimplementation of eiquadprog")
-SET(PROJECT_URL "https://github.com/${PROJECT_ORG}/${PROJECT_NAME}")
+project(eiquadprog
+  LANGUAGES CXX
+  VERSION 1.2.3
+)
+
+set(TARGET_NAME ${PROJECT_NAME}Targets)
 
 # Project options
-OPTION(TRACE_SOLVER "trace solver on stderr" OFF)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+option(EIQUADPROG_TRACE_SOLVER "trace solver on stderr" OFF)
+option(EIQUADPROG_BUILD_TESTS "Build tests." OFF)
 
-# Project configuration
-SET(PROJECT_USE_CMAKE_EXPORT TRUE)
-SET(CXX_DISABLE_WERROR TRUE)
-SET(CMAKE_VERBOSE_MAKEFILE TRUE)
-SET(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
+#### Dependence
+find_package(Eigen3 REQUIRED)
 
-# JRL-cmakemodule setup
-INCLUDE(cmake/base.cmake)
-INCLUDE(cmake/boost.cmake)
-
-# Project definition
-COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
-PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
-
-# Project dependencies
-ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED)
-FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework)
-
-# Main Library
-SET(${PROJECT_NAME}_HEADERS
-  include/${PROJECT_NAME}/eiquadprog.hpp
-  include/${PROJECT_NAME}/eiquadprog-fast.hpp
-  include/${PROJECT_NAME}/eiquadprog-rt.hpp
-  include/${PROJECT_NAME}/eiquadprog-rt.hxx
-  include/${PROJECT_NAME}/eiquadprog-utils.hxx
-  )
-
-ADD_LIBRARY(${PROJECT_NAME} SHARED
+#### Library
+add_library(${PROJECT_NAME} STATIC
   src/eiquadprog-fast.cpp
   src/eiquadprog.cpp
-  )
+)
 
-IF(TRACE_SOLVER)
-  TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME} PRIVATE TRACE_SOLVER)
-ENDIF(TRACE_SOLVER)
+if(EIQUADPROG_TRACE_SOLVER)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE TRACE_SOLVER)
+endif(EIQUADPROG_TRACE_SOLVER)
 
-TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
-TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} INTERFACE $<INSTALL_INTERFACE:include>)
-INSTALL(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
+target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen)
+target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
 
-ADD_SUBDIRECTORY(tests)
+#### Install
+set(INSTALL_CMAKEDIR share/cmake/${PROJECT_NAME})
+
+install(
+  TARGETS
+    ${PROJECT_NAME}
+  EXPORT ${TARGET_NAME}
+  LIBRARY
+    COMPONENT lib
+  ARCHIVE
+    COMPONENT lib
+)
+
+install(
+  DIRECTORY
+    "${CMAKE_SOURCE_DIR}/include/"
+  TYPE INCLUDE
+)
+
+install(
+  EXPORT
+    ${TARGET_NAME}
+  NAMESPACE
+    "${PROJECT_NAME}::"
+  DESTINATION
+    ${INSTALL_CMAKEDIR}
+  COMPONENT
+    dev
+)
+
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
+      COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+  ${CMAKE_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  INSTALL_DESTINATION ${INSTALL_CMAKEDIR}
+)
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  DESTINATION
+    ${INSTALL_CMAKEDIR}
+)
+
+if(EIQUADPROG_BUILD_TESTS)
+  add_subdirectory(tests)
+endif(EIQUADPROG_BUILD_TESTS)

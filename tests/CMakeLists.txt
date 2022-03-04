@@ -15,6 +15,8 @@
 # along with eiquadprog.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework)
+
 ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
 
 #test paths and names (without .cpp extension)

@@ -17,7 +17,7 @@
 # along with eiquadprog.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
 project(eiquadprog
   LANGUAGES CXX
@@ -37,7 +37,7 @@ option(EIQUADPROG_BUILD_TESTS "Build tests." OFF)
 find_package(Eigen3 REQUIRED)
 
 #### Library
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME}
   src/eiquadprog-fast.cpp
   src/eiquadprog.cpp
 )

@@ -1,8 +1,5 @@
 # eiquadprog
 
-[![Pipeline status](https://gitlab.laas.fr/stack-of-tasks/eiquadprog/badges/master/pipeline.svg)](https://gitlab.laas.fr/stack-of-tasks/eiquadprog/commits/master)
-[![Coverage report](https://gitlab.laas.fr/stack-of-tasks/eiquadprog/badges/master/coverage.svg?job=doc-coverage)](http://projects.laas.fr/gepetto/doc/stack-of-tasks/eiquadprog/master/coverage/)
-
 This repo contains different C++ implementations of the algorithm of Goldfarb and Idnani for the solution of a (convex) Quadratic Programming problem by means of a dual method.
 
 The problem is in the form:
@@ -17,6 +14,11 @@ There are 3 implementations:
 - `eiquadprog-rt.hpp`: similar to the above, it employs fixed-size Eigen vectors. This requires the problem dimensions to be known at compile time and is recommended only for small problems.
 
 Please refer to the unit tests for examples of usage.
+
+## Installation
+
+    cmake -DCMAKE_INSTALL_PREFIX:STRING=$HOME/.local -H$(pwd) -B$(pwd)/build
+    cmake --build $(pwd)/build --target install
 
 ## Authors
 

@@ -19,7 +19,9 @@ Please refer to the unit tests for examples of usage.
 
     cmake -DEIQUADPROG_BUILD_TESTS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -H$(pwd) -B$(pwd)/build
     cmake --build $(pwd)/build --target all
-    cd $(pwd)/build/tests && ctest
+    cd $(pwd)/build 
+    ctest
+    ctest -T memcheck
 
 ## Installation
 

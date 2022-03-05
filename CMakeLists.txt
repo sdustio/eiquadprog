@@ -105,5 +105,30 @@ install(
 )
 
 if(EIQUADPROG_BUILD_TESTS)
-  add_subdirectory(tests)
+find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+find_program(MEMORYCHECK_COMMAND NAMES valgrind)
+set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
+
+add_definitions(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
+
+#test paths and names (without .cpp extension)
+set(TESTS
+  eiquadprog-basic
+  eiquadprog-fast
+  eiquadprog-rt
+  eiquadprog-both
+  test-integration
+  )
+
+include (CTest)
+enable_testing()
+foreach(test ${TESTS})
+  add_executable(${test} tests/${test}.cpp)
+  target_link_libraries(${test} ${PROJECT_NAME} Boost::unit_test_framework)
+  add_test(NAME ${test} COMMAND ${test})
+endforeach(test ${TESTS})
+
+add_library(testab tests/TestA.cpp tests/TestB.cpp)
+target_link_libraries(testab ${PROJECT_NAME})
+target_link_libraries(test-integration testab)
 endif(EIQUADPROG_BUILD_TESTS)

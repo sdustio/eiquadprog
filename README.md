@@ -15,6 +15,12 @@ There are 3 implementations:
 
 Please refer to the unit tests for examples of usage.
 
+## Test
+
+    cmake -DEIQUADPROG_BUILD_TESTS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=Debug -H$(pwd) -B$(pwd)/build
+    cmake --build $(pwd)/build-test --target all
+    cd $(pwd)/build-test/tests && ctest
+
 ## Installation
 
     cmake -DCMAKE_INSTALL_PREFIX:STRING=$HOME/.local -H$(pwd) -B$(pwd)/build

@@ -27,12 +27,13 @@ SET(TESTS
   eiquadprog-both
   test-integration
   )
-
+ENABLE_TESTING()
 FOREACH(test ${TESTS})
-  ADD_UNIT_TEST(${test} ${test}.cpp)
+  ADD_EXECUTABLE(${test} ${test}.cpp)
   TARGET_LINK_LIBRARIES(${test} ${PROJECT_NAME} Boost::unit_test_framework)
+  ADD_TEST(NAME ${test} COMMAND ${test})
 ENDFOREACH(test ${TESTS})
 
-ADD_LIBRARY(testab SHARED TestA.cpp TestB.cpp)
+ADD_LIBRARY(testab TestA.cpp TestB.cpp)
 TARGET_LINK_LIBRARIES(testab ${PROJECT_NAME})
 TARGET_LINK_LIBRARIES(test-integration testab)
